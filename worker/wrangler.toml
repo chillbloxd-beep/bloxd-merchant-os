@@ -1,0 +1,11 @@
+name = "bloxd-merchant-os-api"
+main = "src/worker.js"
+compatibility_date = "2026-05-23"
+
+# After running:
+#   npx wrangler d1 create bloxd_merchant_os
+# paste the returned database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "bloxd_merchant_os"
+database_id = "PASTE_YOUR_D1_DATABASE_ID_HERE"
