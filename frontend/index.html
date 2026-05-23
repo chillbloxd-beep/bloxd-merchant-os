@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloxd Merchant OS</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Bloxd SMP Trading Terminal</p>
+        <h1>Bloxd Merchant OS</h1>
+        <p class="muted">Buy cheap from orders. Sell expensive on market. Track profit like a menace.</p>
+      </div>
+      <div class="api-box">
+        <label>Worker API URL</label>
+        <input id="apiUrl" placeholder="https://your-worker.yourname.workers.dev" />
+        <button id="saveApiBtn">Save</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="cards">
+        <div class="card stat">
+          <span>Total Profit</span>
+          <strong id="statProfit">0g</strong>
+          <small id="statRoi">0% ROI</small>
+        </div>
+        <div class="card stat">
+          <span>Gold Spent</span>
+          <strong id="statSpent">0g</strong>
+          <small>Buys + buy fees</small>
+        </div>
+        <div class="card stat">
+          <span>Revenue</span>
+          <strong id="statRevenue">0g</strong>
+          <small>Sells after fees</small>
+        </div>
+        <div class="card stat">
+          <span>Inventory Items</span>
+          <strong id="statInventory">0</strong>
+          <small>Blocks with stock</small>
+        </div>
+      </section>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="trade">New Trade</button>
+        <button class="tab" data-tab="recent">Recent Transactions</button>
+        <button class="tab" data-tab="history">Block History</button>
+        <button class="tab" data-tab="inventory">Inventory</button>
+        <button class="tab" data-tab="items">Blocks</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+
+      <section id="trade" class="panel active">
+        <div class="trade-grid">
+          <button class="trade-action buy" data-type="BUY_ORDER">
+            <span>Buy from Orders</span>
+            <small>Cheap fills from impatient sellers</small>
+          </button>
+          <button class="trade-action buy" data-type="BUY_MARKET">
+            <span>Buy from Market</span>
+            <small>Instant buy, usually more expensive</small>
+          </button>
+          <button class="trade-action sell" data-type="SELL_ORDER">
+            <span>Sell to Orders</span>
+            <small>Instant sell to someone else's order</small>
+          </button>
+          <button class="trade-action sell" data-type="SELL_MARKET">
+            <span>Sell on Market</span>
+            <small>Your main retail flipping lane</small>
+          </button>
+        </div>
+
+        <div class="card trade-form-card">
+          <div class="form-head">
+            <div>
+              <p class="eyebrow">Selected action</p>
+              <h2 id="selectedTradeType">Buy from Orders</h2>
+            </div>
+            <span id="tradeBadge" class="badge buy">BUY_ORDER</span>
+          </div>
+
+          <div class="form-grid">
+            <div class="field item-picker-wrap">
+              <label>Block / Item</label>
+              <input id="itemSearch" autocomplete="off" placeholder="Type block name, e.g. Diamond, Door, Torch..." />
+              <div id="itemResults" class="item-results"></div>
+              <input id="selectedItemId" type="hidden" />
+            </div>
+            <div class="field">
+              <label>Quantity</label>
+              <input id="qty" type="number" min="0" step="1" value="1" />
+            </div>
+            <div class="field">
+              <label>Unit Price (gold)</label>
+              <input id="unitPrice" type="number" min="0" step="0.01" placeholder="0" />
+            </div>
+            <div class="field">
+              <label>Fee / Tax (gold)</label>
+              <input id="fee" type="number" min="0" step="0.01" value="0" />
+            </div>
+            <div class="field wide">
+              <label>Notes</label>
+              <input id="notes" placeholder="e.g. cheap order fill, undercut at 99g, dead stock, etc." />
+            </div>
+          </div>
+
+          <div class="preview-box">
+            <div>
+              <span>Cashflow preview</span>
+              <strong id="cashPreview">-0g</strong>
+            </div>
+            <div>
+              <span>Inventory effect</span>
+              <strong id="inventoryPreview">+1 item</strong>
+            </div>
+          </div>
+
+          <button id="saveTradeBtn" class="primary">Save Trade</button>
+        </div>
+      </section>
+
+      <section id="recent" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Recent Transactions</h2>
+            <p class="muted">Newest trades first. Edit/delete later if you miskey something.</p>
+          </div>
+          <input id="recentSearch" class="mini-search" placeholder="Search recent trades..." />
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Block</th>
+                <th class="right">Qty</th>
+                <th class="right">Unit</th>
+                <th class="right">Fee</th>
+                <th class="right">Cashflow</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="recentBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="history" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Block History</h2>
+            <p class="muted">Grouped profit/loss by block using average-cost accounting.</p>
+          </div>
+          <input id="historySearch" class="mini-search" placeholder="Search block history..." />
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th class="right">Bought</th>
+                <th class="right">Sold</th>
+                <th class="right">Holding</th>
+                <th class="right">Avg Buy</th>
+                <th class="right">Avg Sell</th>
+                <th class="right">Realized P/L</th>
+                <th class="right">ROI</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="inventory" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Inventory</h2>
+            <p class="muted">Stuff you still hold. This is gold locked inside stock.</p>
+          </div>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th class="right">Quantity</th>
+                <th class="right">Avg Cost</th>
+                <th class="right">Cost Basis</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="items" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>All Blocks</h2>
+            <p class="muted">Search all seeded Bloxd block names. Meta codes are stored separately.</p>
+          </div>
+          <input id="blockSearch" class="mini-search" placeholder="Search all blocks..." />
+        </div>
+        <div id="blockGrid" class="block-grid"></div>
+      </section>
+
+      <section id="settings" class="panel">
+        <div class="card settings-card">
+          <h2>Seed / Import Blocks</h2>
+          <p class="muted">
+            Paste your full 1120-block list here, then click Import. The parser keeps the root name and stores bracket meta codes separately.
+          </p>
+          <textarea id="seedText" placeholder="Paste block list here..."></textarea>
+          <div class="button-row">
+            <button id="importBlocksBtn" class="primary">Import Blocks to D1</button>
+            <button id="demoSeedBtn">Seed Demo Blocks</button>
+            <button id="refreshBtn">Refresh Data</button>
+          </div>
+          <p class="hint">
+            Use this once after deploying your Worker and D1. Internal placeholders can stay in the database but can be filtered later.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast"></div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
